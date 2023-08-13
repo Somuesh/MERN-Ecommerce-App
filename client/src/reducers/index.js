@@ -1,4 +1,4 @@
-import { ADD_ADDRESS, CHANGE_ORDER_CART, CHANGED_ITEM_IN_CART, EMPTY_CART, INIT_CART, INIT_PRODUCTS, PLACE_ORDER, REMOVE_ITEM, SET_SHIP_ADDRESS } from "../action";
+import { ADD_ADDRESS, CHANGE_ORDER_CART, CHANGED_ITEM_IN_CART, INIT_CART, INIT_USER, INIT_PRODUCTS, PLACE_ORDER, SET_SHIP_ADDRESS } from "../action";
 
 
 
@@ -7,7 +7,8 @@ const initailStateProduct = {
 }
 
 const initailStateCart = {
-  items: []
+  items: [],
+  userId : ''
 }
 
 const initailStateOrder = {
@@ -21,12 +22,7 @@ const initailStateOrder = {
 }
 
 const initialStateUser = {
-  name: 'John',
-  email: 'john@example.com',
-  addresses: [
-  ],
-  orders: [],
-};
+}
 
 
 const productReducer = (state = initailStateProduct, action) => {
@@ -34,8 +30,6 @@ const productReducer = (state = initailStateProduct, action) => {
 
     case INIT_PRODUCTS:
       return { ...state, products: action.payload }
-
-    
 
     default:
       return state;
@@ -46,26 +40,13 @@ const cartReducer = (state = initailStateCart, action) => {
   switch (action.type) {
 
     case INIT_CART:
-      return { ...state, items: action.payload.items }
+      return { ...state, items: action.payload.items, userId : action.payload.userId }
 
     case CHANGED_ITEM_IN_CART:
       return {
         ...state,
         items: action.payload.items
       }
-
-    case EMPTY_CART:
-
-      return { ...state, items: [] }
-
-    case REMOVE_ITEM:
-      const item = action.payload;
-      const newIt = state.items.filter((it) => it._id !== item._id)
-
-      return { ...state, items: newIt }
-
-
-
 
     default: return state;
   }
@@ -97,9 +78,12 @@ const orderReducer = (state = initailStateOrder, action) => {
 const userReducer = (state = initialStateUser, action) => {
 
   switch (action.type) {
-    case ADD_ADDRESS:
 
-      return { ...state, addresses: [...state.addresses, action.payload] };
+    case INIT_USER:
+      return action.payload
+
+    case ADD_ADDRESS:
+      return { ...state, addresses: [...state.addresses, action.payload] }
 
     case PLACE_ORDER:
 

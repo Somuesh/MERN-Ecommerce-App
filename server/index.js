@@ -7,8 +7,6 @@ const { Schema } = mongoose;
 require('dotenv').config()
 
 
-
-
 app.use(express.json())
 app.use(cors())
 
@@ -63,49 +61,6 @@ const User = new mongoose.model('User', userSchema);
 const Order = new mongoose.model('Order', orderSchema);
 
 
-
-// app.get('/createProduct', (req, res) => {
-//   let product = new Product({
-
-//     name: 'Nikon Xl54',
-//     price: 1200.75,
-//     category: 'Camera',
-//     rating: 3,
-//     color: 'black',
-//     size: '',
-//     details: {
-//       product: "",
-//       warranty: "",
-//       merchant: ""
-//     },
-//     image: 'product-4-square',
-//     images: ['product-4', 'product-4-2', 'product-4-3']
-
-//   })
-//   product.save().then((success) => {
-//     res.send(success)
-//   }).catch(err => {
-//     res.error(err)
-//   })
-
-// })
-
-
-
-
-
-
-
-// app.get('/a', async (req, res) => {
-//   try {
-//     // Fetch all collections from the database
-//     const dbList = await mongoose.connection.db.admin().listDatabases();
-//     res.send(dbList.databases);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching collectns' });
-//   }
-// });
-
 app.get('/', (req, res) => {
   Product.find({}).then((result) => {
     res.send(result)
@@ -113,13 +68,13 @@ app.get('/', (req, res) => {
 })
 
 app.get('/cart', (req, res) => {
-  let userId = 1;
+  let userId = "64d75054609d6adba97ba0ce";
   Cart.findOne({ userId: userId }).then((result) => {
     if (result) {
       res.send(result)
     }
     else {
-      res.send({ userId: 1, items: [] })
+      res.send({ userId: "64d75054609d6adba97ba0ce", items: [] })
     }
   })
 })
@@ -127,7 +82,7 @@ app.get('/cart', (req, res) => {
 app.post('/cart', (req, res) => {
 
   // const userId = req.session.user._id;  // This will be solved by Sessions
-  const userId = 1;
+  const userId = "64d75054609d6adba97ba0ce";
   const item = req.body.item;
   if (!item.quantity) {
     item.quantity = 1;
@@ -159,7 +114,7 @@ app.post('/cart', (req, res) => {
 app.post('/removeItem', (req, res) => {
 
   // const userId = req.session.user._id;
-  const userId = 1;
+  const userId = "64d75054609d6adba97ba0ce";
   const item = req.body.item;
   Cart.findOne({ userId: userId }).then(result => {
 
@@ -171,9 +126,10 @@ app.post('/removeItem', (req, res) => {
   });
 
 });
+
 app.post('/emptyCart', (req, res) => {
   // const userId = req.session.user._id;
-  const userId = 1;
+  const userId = "64d75054609d6adba97ba0ce";
   Cart.findOne({ userId: userId }).then(result => {
     result.items = [];
     result.save().then(cart => {
@@ -182,6 +138,43 @@ app.post('/emptyCart', (req, res) => {
   });
 
 });
+
+app.get('/user', (req, res) => {
+  User.findOne({}).populate('orders').then(result => {
+    res.send(result);
+  })
+
+});
+
+app.post('/updateUserAddress', (req, res) => {
+  const userId = "64d75054609d6adba97ba0ce"
+  const address = req.body.address;
+  User.findOne({ _id: userId }).then((user) => {
+    user.addresses.push(address);
+    user.save().then(user => {
+      res.send(address);
+    })
+  }).catch((err) => {
+    console.log("UpdateAddressError", err);
+  })
+})
+
+app.post('/order', (req, res) => {
+  const userId = "64d75054609d6adba97ba0ce"
+  const order = req.body.order;
+
+  let newOrder = new Order(order);
+  newOrder.save().then(savedOrder => {
+    User.findOne({ _id: userId }).then((user) => {
+      user.orders.push(savedOrder._id);
+      user.save().then(user => {
+        res.send(savedOrder);
+      })
+    })
+  })
+
+})
+
 
 app.listen(PORT, () => {
   console.log(`Connected to Port ${PORT}`);
